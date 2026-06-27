@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CogniCoach</title>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ar:#2D4A6B;--ar2:#3D6A9B;--pa:#F7F3ED;--pa2:#EDE7DD;
+  --co:#E8823A;--va:#4CAF7D;--al:#E05454;--la:#7B5EA7;
+  --t1:#1A2B3C;--t2:#4A5F73;--t3:#8A9BAD;
+  --wh:#FFFFFF;--ca:#FFFFFF;--bo:#DDD6CC;
+  --sh:0 2px 12px rgba(45,74,107,.10);--sh2:0 8px 32px rgba(45,74,107,.16);
+  --r:12px;--rs:8px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:var(--pa);color:var(--t1);min-height:100vh;line-height:1.6}
+h1,h2,h3,h4{font-family:'Lexend',sans-serif;line-height:1.3}
+button{cursor:pointer;font-family:inherit;border:none}
+input,select,textarea{font-family:inherit}
+.topbar{background:var(--ar);color:var(--wh);display:flex;align-items:center;justify-content:space-between;padding:0 16px;height:54px;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+.brand{font-family:'Lexend',sans-serif;font-size:1.05rem;font-weight:700;display:flex;align-items:center;gap:7px}
+.brand .acc{color:var(--co)}
+.msw{display:flex;gap:3px;background:rgba(255,255,255,.12);border-radius:8px;padding:3px}
+.msw button{padding:4px 12px;border-radius:6px;font-size:.78rem;font-weight:600;color:rgba(255,255,255,.7);background:transparent;transition:all .2s}
+.msw button.on{background:var(--wh);color:var(--ar)}
+.chip{background:rgba(255,255,255,.15);border-radius:6px;padding:3px 9px;font-size:.78rem}
+.main{padding:20px 16px;max-width:860px;margin:0 auto;width:100%}
+.view{display:none}.view.on{display:block}
+/* SETUP */
+.swrap{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:80vh;gap:18px;text-align:center}
+.slogo{width:64px;height:64px;border-radius:16px;background:var(--ar);display:flex;align-items:center;justify-content:center;font-size:1.8rem;color:var(--co);box-shadow:var(--sh2)}
+.scard{background:var(--ca);border-radius:var(--r);padding:26px;width:100%;max-width:400px;box-shadow:var(--sh2);text-align:left}
+.scard h2{font-size:1.15rem;color:var(--ar);margin-bottom:16px}
+.rrow{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:16px}
+.rbtn{border:2px solid var(--bo);border-radius:var(--r);padding:13px;text-align:center;background:var(--pa);transition:all .2s;cursor:pointer}
+.rbtn.sel{border-color:var(--ar);background:#EBF2FA}
+.rbtn .ri{font-size:1.5rem;display:block;margin-bottom:4px}
+.rbtn .rl{font-family:'Lexend',sans-serif;font-size:.8rem;font-weight:600;color:var(--ar)}
+/* FIELDS */
+.fi{margin-bottom:13px}
+.fi label{display:block;font-size:.76rem;font-weight:600;color:var(--t2);margin-bottom:4px}
+.fi input,.fi select,.fi textarea{width:100%;padding:8px 12px;border:1.5px solid var(--bo);border-radius:var(--rs);font-size:.88rem;color:var(--t1);background:var(--pa);transition:border-color .2s}
+.fi input:focus,.fi select:focus,.fi textarea:focus{outline:none;border-color:var(--ar2);background:var(--wh)}
+.fi textarea{resize:vertical;min-height:90px}
+/* BUTTONS */
+.btn{padding:9px 18px;border-radius:var(--rs);font-family:'Lexend',sans-serif;font-weight:600;font-size:.85rem;transition:all .18s;display:inline-flex;align-items:center;gap:6px}
+.bp{background:var(--ar);color:var(--wh)}.bp:hover{background:var(--ar2);transform:translateY(-1px)}
+.bg{background:transparent;color:var(--ar);border:1.5px solid var(--ar)}.bg:hover{background:var(--ar);color:var(--wh)}
+.bv{background:var(--va);color:var(--wh)}
+.bl{background:var(--la);color:var(--wh)}.bl:hover{opacity:.9}
+.bd{background:var(--al);color:var(--wh)}
+.bsm{padding:5px 11px;font-size:.76rem}
+.bfw{width:100%;justify-content:center}
+/* CARDS */
+.card{background:var(--ca);border-radius:var(--r);padding:16px;box-shadow:var(--sh);border:1.5px solid transparent;transition:all .2s;cursor:pointer}
+.card:hover{border-color:var(--ar2);transform:translateY(-2px);box-shadow:var(--sh2)}
+.ci{font-size:1.4rem;margin-bottom:7px}
+.ct{font-family:'Lexend',sans-serif;font-size:.9rem;font-weight:700;color:var(--ar);margin-bottom:4px}
+.cd{font-size:.78rem;color:var(--t2);line-height:1.5}
+.cf{margin-top:11px;padding-top:9px;border-top:1px solid var(--pa2);display:flex;align-items:center;justify-content:space-between}
+.cgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px;margin-bottom:22px}
+/* BANNER */
+.ban{background:linear-gradient(135deg,var(--ar) 0%,#1A3A5C 100%);border-radius:var(--r);padding:20px 24px;color:var(--wh);margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.ban h2{font-size:1.1rem;margin-bottom:3px}
+.ban p{font-size:.8rem;opacity:.8}
+.xpb{text-align:center;flex-shrink:0;background:rgba(255,255,255,.12);border-radius:10px;padding:9px 16px}
+.xpv{font-family:'Lexend',sans-serif;font-size:1.4rem;font-weight:700;color:var(--co)}
+.xpl{font-size:.66rem;opacity:.8}
+/* SECTION TITLE */
+.st{font-family:'Lexend',sans-serif;font-size:.95rem;font-weight:700;color:var(--ar);margin-bottom:13px;display:flex;align-items:center;gap:9px}
+.st::after{content:'';flex:1;height:1.5px;background:var(--pa2)}
+/* BADGES */
+.ccb{display:inline-flex;align-items:center;gap:5px;font-family:'Lexend',sans-serif;font-size:.66rem;font-weight:600;letter-spacing:.05em;text-transform:uppercase;padding:3px 8px;border-radius:20px}
+.ccl{background:#E8F7F0;color:#2E7D52}.ccm{background:#FFF3E0;color:#B85C00}.cch{background:#FDECEA;color:#B71C1C}
+.ccd{width:5px;height:5px;border-radius:50%;background:currentColor}
+/* NOTIONS */
+.nlist{display:flex;flex-direction:column;gap:7px;margin-bottom:14px}
+.nitem{background:var(--ca);border:1.5px solid var(--bo);border-radius:var(--rs);padding:10px 14px;display:flex;align-items:center;justify-content:space-between;gap:9px}
+.msec{margin-bottom:18px}
+.mhdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px}
+.mlbl{font-family:'Lexend',sans-serif;font-size:.8rem;font-weight:700;color:var(--ar);background:var(--pa2);padding:3px 11px;border-radius:20px}
+/* SESSION */
+.sbar{display:flex;margin-bottom:18px;background:var(--pa2);border-radius:30px;padding:3px}
+.pill{flex:1;padding:6px;border-radius:24px;text-align:center;font-family:'Lexend',sans-serif;font-size:.7rem;font-weight:600;color:var(--t3);transition:all .3s}
+.pill.dn{background:var(--va);color:var(--wh)}.pill.ac{background:var(--ar);color:var(--wh)}
+.sc{background:var(--ca);border-radius:var(--r);padding:22px;box-shadow:var(--sh2);margin-bottom:14px}
+.slbl{font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--co);margin-bottom:6px}
+.sq{font-family:'Lexend',sans-serif;font-size:1.05rem;font-weight:600;color:var(--ar);margin-bottom:16px;line-height:1.4}
+.agrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.abtn{border:2px solid var(--bo);border-radius:var(--rs);padding:10px 13px;text-align:left;font-size:.84rem;background:var(--pa);color:var(--t1);transition:all .18s}
+.abtn:hover:not(:disabled){border-color:var(--ar2);background:#EBF2FA}
+.abtn.ok{border-color:var(--va);background:#E8F7F0;color:#1B5E3A}
+.abtn.ko{border-color:var(--al);background:#FDECEA;color:#7B1818}
+.abtn:disabled{cursor:default}
+.fbx{border-radius:var(--rs);padding:11px 14px;font-size:.83rem;line-height:1.6;margin-bottom:11px}
+.fbx.ok{background:#E8F7F0;border-left:4px solid var(--va)}.fbx.ko{background:#FDECEA;border-left:4px solid var(--al)}
+.fbx strong{font-family:'Lexend',sans-serif;display:block;margin-bottom:2px}
+.tip{background:linear-gradient(135deg,#EBF2FA,#F7F3ED);border:1px solid var(--bo);border-radius:var(--rs);padding:10px 14px;font-size:.79rem;color:var(--t2);display:flex;gap:8px;align-items:flex-start;margin-top:12px}
+/* RECAP */
+.recap{background:linear-gradient(135deg,#EBF2FA,#F7F3ED);border:1px solid var(--bo);border-radius:var(--r);padding:20px;text-align:center}
+.rscore{font-family:'Lexend',sans-serif;font-size:2.6rem;font-weight:700;color:var(--ar)}
+.rlbl{font-size:.86rem;color:var(--t2);margin-bottom:12px}
+.dcs{display:flex;gap:7px;justify-content:center;flex-wrap:wrap;margin-top:12px}
+.dc{background:var(--wh);border:1.5px solid var(--ar);color:var(--ar);border-radius:20px;padding:3px 12px;font-family:'Lexend',sans-serif;font-size:.73rem;font-weight:600}
+.seva{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.evb{flex:1;min-width:80px;padding:10px;border-radius:var(--rs);border:2px solid var(--bo);font-family:'Lexend',sans-serif;font-size:.78rem;font-weight:600;text-align:center;background:var(--pa);transition:all .2s}
+.e1:hover,.e1.sel{background:#FDECEA;border-color:var(--al)}
+.e2:hover,.e2.sel{background:#FFF8E1;border-color:#F5A623}
+.e3:hover,.e3.sel{background:#E8F7F0;border-color:var(--va)}
+/* PLANNING */
+.ptbl{width:100%;border-collapse:collapse;font-size:.81rem}
+.ptbl th{background:var(--ar);color:var(--wh);padding:8px 12px;text-align:left;font-family:'Lexend',sans-serif;font-weight:600;font-size:.76rem}
+.ptbl th:first-child{border-radius:8px 0 0 0}.ptbl th:last-child{border-radius:0 8px 0 0}
+.ptbl td{padding:8px 12px;border-bottom:1px solid var(--pa2)}
+.ptbl tr:hover td{background:#F0EAE0}
+.bp2{display:inline-block;padding:2px 8px;border-radius:20px;font-size:.68rem;font-weight:600}
+.pt{background:#FFF3E0;color:#B85C00}.pd{background:#E8F7F0;color:#2E7D52}
+.pl{background:#FDECEA;color:#B71C1C}.pj{background:#EBF2FA;color:#1A4A7A}
+/* CAPSULE */
+.cap{background:var(--ar);color:var(--wh);border-radius:var(--r);padding:16px 20px;margin-bottom:16px}
+.cap h4{font-size:.88rem;margin-bottom:6px;color:var(--co)}
+.cap p{font-size:.81rem;opacity:.9;line-height:1.6}
+/* STRAT CARD */
+.strc{background:var(--ca);border-radius:var(--r);padding:16px;box-shadow:var(--sh);margin-bottom:12px}
+.strh{display:flex;align-items:center;gap:9px;margin-bottom:9px}
+.strt{font-family:'Lexend',sans-serif;font-weight:700;color:var(--ar);font-size:.88rem}
+.strd{font-size:.82rem;color:var(--t2);margin-bottom:9px}
+.stre{background:var(--pa2);border-radius:var(--rs);padding:9px 12px;font-size:.78rem;color:var(--t1)}
+.stre strong{font-family:'Lexend',sans-serif;font-size:.7rem;text-transform:uppercase;letter-spacing:.05em;color:var(--co);display:block;margin-bottom:3px}
+/* TABS */
+.tabs{display:flex;gap:3px;border-bottom:2px solid var(--pa2);margin-bottom:18px;flex-wrap:wrap}
+.tab{padding:8px 14px;font-family:'Lexend',sans-serif;font-weight:600;font-size:.8rem;color:var(--t2);border-radius:8px 8px 0 0;background:transparent;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .2s}
+.tab.on{color:var(--ar);border-bottom-color:var(--ar);background:var(--ca)}
+/* FLASHCARD */
+.fcw{perspective:600px;margin:0 auto 20px;max-width:400px;height:200px;cursor:pointer}
+.fcc{width:100%;height:100%;position:relative;transform-style:preserve-3d;transition:transform .5s}
+.fcc.fl{transform:rotateY(180deg)}
+.fcf{position:absolute;inset:0;backface-visibility:hidden;border-radius:var(--r);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center;box-shadow:var(--sh2)}
+.fcfr{background:var(--ar);color:var(--wh)}
+.fcbk{background:var(--va);color:var(--wh);transform:rotateY(180deg)}
+.fcw2{font-family:'Lexend',sans-serif;font-size:1.4rem;font-weight:700;margin-bottom:8px}
+.fch{font-size:.78rem;opacity:.7}
+.fcctrl{display:flex;gap:9px;justify-content:center;flex-wrap:wrap;margin-bottom:16px}
+/* MATCH */
+.mgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.mcol{display:flex;flex-direction:column;gap:8px}
+.mi{padding:10px 14px;border-radius:var(--rs);border:2px solid var(--bo);font-size:.84rem;text-align:center;cursor:pointer;background:var(--pa);transition:all .2s;font-family:'Lexend',sans-serif;font-weight:500}
+.mi.sel{border-color:var(--ar);background:#EBF2FA}
+.mi.mat{border-color:var(--va);background:#E8F7F0;color:#1B5E3A;cursor:default}
+.mi.wfl{border-color:var(--al);background:#FDECEA}
+/* CONSEIL */
+.ccard{background:var(--ca);border-radius:var(--rs);border-left:4px solid var(--la);padding:14px 16px;margin-bottom:10px;box-shadow:var(--sh)}
+.ccat{font-family:'Lexend',sans-serif;font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--la);margin-bottom:5px}
+.ctit{font-family:'Lexend',sans-serif;font-size:.88rem;font-weight:700;color:var(--ar);margin-bottom:5px}
+.ctxt{font-size:.82rem;color:var(--t2);line-height:1.6}
+.cex{background:var(--pa2);border-radius:var(--rs);padding:7px 11px;font-size:.78rem;margin-top:8px;color:var(--t1)}
+/* REF CARD */
+.rcard{background:var(--ca);border-radius:var(--rs);padding:14px 16px;margin-bottom:10px;box-shadow:var(--sh);border-top:3px solid var(--la)}
+.rauth{font-family:'Lexend',sans-serif;font-size:.75rem;font-weight:700;color:var(--la);margin-bottom:4px}
+.rcpt{font-family:'Lexend',sans-serif;font-size:.9rem;font-weight:700;color:var(--ar);margin-bottom:5px}
+.rdsc{font-size:.81rem;color:var(--t2);line-height:1.6}
+.rapp{background:#F3EEF8;border-radius:var(--rs);padding:7px 11px;font-size:.78rem;margin-top:8px;color:var(--t1)}
+.rapp strong{color:var(--la);font-size:.7rem;text-transform:uppercase;display:block;margin-bottom:2px}
+/* GRILLE */
+.gtbl{width:100%;border-collapse:collapse;font-size:.8rem}
+.gtbl th{background:var(--la);color:var(--wh);padding:8px 12px;text-align:left;font-size:.76rem}
+.gtbl td{padding:8px 12px;border-bottom:1px solid var(--pa2);vertical-align:top}
+.gtbl tr:nth-child(even) td{background:#FAF8FD}
+/* ALERT */
+.abar{background:#FFF3E0;border:1.5px solid #F5A623;border-radius:var(--rs);padding:11px 14px;margin-bottom:16px;display:flex;align-items:center;gap:9px}
+/* MODAL */
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.4);display:none;align-items:center;justify-content:center;z-index:200;padding:16px}
+.ov.op{display:flex}
+.modal{background:var(--ca);border-radius:var(--r);padding:24px;width:100%;max-width:460px;box-shadow:var(--sh2);animation:up .25s ease}
+@keyframes up{from{transform:translateY(14px);opacity:0}to{transform:translateY(0);opacity:1}}
+.modal h3{font-size:1rem;color:var(--ar);margin-bottom:13px}
+.mft{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
+/* TOAST */
+#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(60px);background:var(--ar);color:var(--wh);padding:9px 18px;border-radius:30px;font-size:.84rem;font-weight:500;box-shadow:var(--sh2);transition:transform .3s ease;z-index:999;white-space:nowrap}
+#toast.sh{transform:translateX(-50%) translateY(0)}
+@media(max-width:580px){.ban{flex-direction:column}.agrid,.mgrid{grid-template-columns:1fr}.rrow{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header class="topbar" id="topbar" style="display:none">
+  <div class="brand">&#x1F9E0; <span>Cogni</span><span class="acc">Coach</span></div>
+  <div class="msw" id="modesw">
+    <button id="be" onclick="swMode('eleve')" class="on">&#x1F393; &#xC9;l&#xE8;ve</button>
+    <button id="bp" onclick="swMode('prof')">&#x1F4CB; Enseignant</button>
+  </div>
+  <div style="display:flex;align-items:center;gap:7px">
+    <span class="chip" id="tname">&#x2014;</span>
+    <button class="btn bg bsm" onclick="logout()">&#x2715;</button>
+  </div>
+</header>
+<!-- SETUP -->
+<div id="v-setup" class="view on"><div class="main"><div class="swrap">
+  <div class="slogo">&#x1F9E0;</div>
+  <div><h1 style="font-family:'Lexend',sans-serif;font-size:1.6rem;color:var(--ar)">CogniCoach</h1>
+    <p style="color:var(--t2);font-size:.88rem;margin-top:3px">Apprendre avec m&#xE9;thode &#x2014; sciences cognitives &amp; langues</p></div>
+  <div class="scard">
+    <h2>Votre profil</h2>
+    <div class="rrow">
+      <div class="rbtn" id="re" onclick="pickR('eleve')"><span class="ri">&#x1F392;</span><span class="rl">Je suis &#xE9;l&#xE8;ve</span></div>
+      <div class="rbtn" id="rp" onclick="pickR('prof')"><span class="ri">&#x1F4CB;</span><span class="rl">Je suis enseignant&#xB7;e</span></div>
+    </div>
+    <div class="fi"><label>Pr&#xE9;nom</label><input id="sn" type="text" placeholder="Ex : Emma" maxlength="30"></div>
+    <div class="fi" id="fcl"><label>Classe</label>
+      <select id="sc"><option value="">&#x2014; Choisir &#x2014;</option>
+        <option>6e</option><option>5e</option><option>4e</option><option>3e</option>
+        <option>2nde</option><option>1re</option><option>Terminale</option><option>Autre</option>
+      </select>
+    </div>
+    <button class="btn bp bfw" onclick="doSetup()">Commencer &#x2192;</button>
+  </div>
+  <p style="font-size:.72rem;color:var(--t3)">Tout reste sur cet appareil &#x2014; aucune donn&#xE9;e envoy&#xE9;e.</p>
+</div></div></div>
+<!-- ELEVE DASHBOARD -->
+<div id="v-eleve" class="view"><div class="main">
+  <div class="ban"><div><h2 id="ew">Bonjour !</h2><p id="es"></p></div><div class="xpb"><div class="xpv" id="xpv">0</div><div class="xpl">XP</div></div></div>
+  <div id="duebar" class="abar" style="display:none">
+    <span style="font-size:1.1rem">&#x23F0;</span>
+    <div><strong style="font-family:'Lexend',sans-serif;font-size:.86rem;color:#7A3E00">R&#xE9;visions &#xE0; faire aujourd'hui</strong>
+      <p style="font-size:.78rem;color:#B85C00" id="duecount"></p></div>
+    <button class="btn bsm" style="background:#F5A623;color:white;margin-left:auto" onclick="startSess()">Go</button>
+  </div>
+  <div class="st">Outils de travail</div>
+  <div class="cgrid">
+    <div class="card" onclick="startSess()"><div class="ci">&#x26A1;</div><div class="ct">S&#xE9;ance guid&#xE9;e</div><div class="cd">Rappel &#x2192; Quiz &#x2192; Bilan (10 min)</div><div class="cf"><span class="ccb ccl"><span class="ccd"></span>Charge faible</span><span style="color:var(--co);font-weight:600">&#x2192;</span></div></div>
+    <div class="card" onclick="goV('v-fc')"><div class="ci">&#x1F0CF;</div><div class="ct">Flashcards audio</div><div class="cd">Recto/verso + &#xE9;coute prononciation</div><div class="cf"><span class="ccb ccl"><span class="ccd"></span>Langues</span><span style="color:var(--co);font-weight:600">&#x2192;</span></div></div>
+    <div class="card" onclick="goV('v-dictee')"><div class="ci">&#x1F3A7;</div><div class="ct">Dict&#xE9;e</div><div class="cd">&#xC9;coute et &#xE9;cris &#x2014; entra&#xEE;nement</div><div class="cf"><span class="ccb ccl"><span class="ccd"></span>Langues</span><span style="color:var(--co);font-weight:600">&#x2192;</span></div></div>
+    <div class="card" onclick="goV('v-match')"><div class="ci">&#x1F517;</div><div class="ct">Matching</div><div class="cd">Relie terme &#x2194; d&#xE9;finition</div><div class="cf"><span class="ccb ccm"><span class="ccd"></span>Langues</span><span style="color:var(--co);font-weight:600">&#x2192;</span></div></div>
+    <div class="card" onclick="goV('v-prod')"><div class="ci">&#x270D;&#xFE0F;</div><div class="ct">Production &#xE9;crite</div><div class="cd">Exercice guid&#xE9; avec feedback</div><div class="cf"><span class="ccb ccm"><span class="ccd"></span>Langues</span><span style="color:var(--co);font-weight:600">&#x2192;</span></div></div>
+    <div class="card" onclick="goV('v-notions')"><div class="ci">&#x1F4DD;</div><div class="ct">Mes notions</div><div class="cd">Ajouter et g&#xE9;rer ce que tu r&#xE9;vises</div><div class="cf"><span id="nc" style="font-size:.76rem;color:var(--t3)">0 notion(s)</span><span style="color:var(--co);font-weight:600">&#x2192;</span></div></div>
+    <div class="card" onclick="goV('v-plan')"><div class="ci">&#x1F4C5;</div><div class="ct">Mon planning</div><div class="cd">R&#xE9;p&#xE9;tition espac&#xE9;e J+1, J+3, J+7&#x2026;</div><div class="cf"><span id="pc" style="font-size:.76rem;color:var(--t3)">&#x2014;</span><span style="color:var(--co);font-weight:600">&#x2192;</span></div></div>
+    <div class="card" onclick="goV('v-cons')"><div class="ci">&#x1F4A1;</div><div class="ct">Conseils &amp; strat&#xE9;gies</div><div class="cd">M&#xE9;mo, langues, lecture, expression&#x2026;</div><div class="cf"><span class="ccb ccm"><span class="ccd"></span>M&#xE9;thode</span><span style="color:var(--co);font-weight:600">&#x2192;</span></div></div>
+  </div>
+</div></div>
+<!-- NOTIONS -->
+<div id="v-notions" class="view"><div class="main">
+  <div style="display:flex;align-items:center;gap:9px;margin-bottom:18px">
+    <button class="btn bg bsm" onclick="goV('v-eleve')">&#x2190; Retour</button>
+    <h2 style="color:var(--ar)">Mes notions</h2>
+    <button class="btn bp bsm" style="margin-left:auto" onclick="openOv('m-add')">+ Ajouter</button>
+  </div>
+  <div id="nlist"></div>
+</div></div>
+<!-- SESSION -->
+<div id="v-sess" class="view"><div class="main">
+  <div style="display:flex;align-items:center;gap:9px;margin-bottom:16px">
+    <button class="btn bg bsm" onclick="goV('v-eleve')">&#x2190; Retour</button>
+    <h2 style="color:var(--ar)">S&#xE9;ance guid&#xE9;e</h2>
+  </div>
+  <div class="sbar"><div class="pill ac" id="p0">1 &#xB7; Rappel</div><div class="pill" id="p1">2 &#xB7; Quiz</div><div class="pill" id="p2">3 &#xB7; Bilan</div></div>
+  <div id="scnt"></div>
+</div></div>
+<!-- FLASHCARDS -->
+<div id="v-fc" class="view"><div class="main">
+  <div style="display:flex;align-items:center;gap:9px;margin-bottom:18px">
+    <button class="btn bg bsm" onclick="goV('v-eleve')">&#x2190; Retour</button>
+    <h2 style="color:var(--ar)">Flashcards audio</h2>
+  </div>
+  <div id="fccnt"></div>
+</div></div>
+<!-- DICTEE -->
+<div id="v-dictee" class="view"><div class="main">
+  <div style="display:flex;align-items:center;gap:9px;margin-bottom:18px">
+    <button class="btn bg bsm" onclick="goV('v-eleve')">&#x2190; Retour</button>
+    <h2 style="color:var(--ar)">Dict&#xE9;e</h2>
+  </div>
+  <div id="dcnt"></div>
+</div></div>
+<!-- MATCHING -->
+<div id="v-match" class="view"><div class="main">
+  <div style="display:flex;align-items:center;gap:9px;margin-bottom:18px">
+    <button class="btn bg bsm" onclick="goV('v-eleve')">&#x2190; Retour</button>
+    <h2 style="color:var(--ar)">Matching</h2>
+  </div>
+  <div id="mcnt"></div>
+</div></div>
+<!-- PRODUCTION -->
+<div id="v-prod" class="view"><div class="main">
+  <div style="display:flex;align-items:center;gap:9px;margin-bottom:18px">
+    <button class="btn bg bsm" onclick="goV('v-eleve')">&#x2190; Retour</button>
+    <h2 style="color:var(--ar)">Production &#xE9;crite guid&#xE9;e</h2>
+  </div>
+  <div id="prodcnt"></div>
+</div></div>
+<!-- PLANNING -->
+<div id="v-plan" class="view"><div class="main">
+  <div style="display:flex;align-items:center;gap:9px;margin-bottom:16px">
+    <button class="btn bg bsm" onclick="goV('v-eleve')">&#x2190; Retour</button>
+    <h2 style="color:var(--ar)">Mon planning</h2>
+  </div>
+  <div class="cap"><h4>&#x1F501; R&#xE9;p&#xE9;tition espac&#xE9;e</h4><p>Revoir plusieurs fois en espa&#xE7;ant les r&#xE9;visions, c'est bien mieux que tout bosser d'un coup. CogniCoach calcule tes dates automatiquement.</p></div>
+  <div id="plancnt"></div>
+</div></div>
+<!-- CONSEILS -->
+<div id="v-cons" class="view"><div class="main">
+  <div style="display:flex;align-items:center;gap:9px;margin-bottom:16px">
+    <button class="btn bg bsm" onclick="goV('v-eleve')">&#x2190; Retour</button>
+    <h2 style="color:var(--ar)">Conseils &amp; strat&#xE9;gies</h2>
+  </div>
+  <div class="tabs" id="ctabs"></div>
+  <div id="ccnt"></div>
+</div></div>
+<!-- PROF -->
+<div id="v-prof" class="view"><div class="main">
+  <div class="ban"><div><h2 id="pw">Espace enseignant</h2><p>Ressources pour l'enseignement des langues</p></div></div>
+  <div class="tabs" id="ptabs">
+    <button class="tab on" onclick="pTab('str',this)">&#x1F9E0; Strat&#xE9;gies</button>
+    <button class="tab" onclick="pTab('l2',this)">&#x1F310; Acquisition L2</button>
+    <button class="tab" onclick="pTab('comp',this)">&#x1F4CB; CO/CE/PE/PO</button>
+    <button class="tab" onclick="pTab('grl',this)">&#x1F441; Grille obs.</button>
+    <button class="tab" onclick="pTab('act',this)">&#x26A1; Activit&#xE9;s</button>
+    <button class="tab" onclick="pTab('ref',this)">&#x1F4DA; R&#xE9;f&#xE9;rences</button>
+  </div>
+  <div id="pcnt"></div>
+</div></div>
+<!-- MODAL -->
+<div class="ov" id="m-add"><div class="modal">
+  <h3>&#x2795; Ajouter des notions</h3>
+  <div class="fi"><label>Mati&#xE8;re</label><input id="amat" type="text" placeholder="Ex : Anglais, Maths&#x2026;"></div>
+  <div class="fi">
+    <label>Notions (une par ligne &#xB7; terme | r&#xE9;ponse)</label>
+    <textarea id="aitems" placeholder="Ex :&#10;a journey | un voyage&#10;to travel | voyager"></textarea>
+    <p style="font-size:.71rem;color:var(--t3);margin-top:4px">S&#xE9;pare question et r&#xE9;ponse avec |</p>
+  </div>
+  <div class="mft">
+    <button class="btn bg" onclick="closeOv('m-add')">Annuler</button>
+    <button class="btn bp" onclick="saveN()">Ajouter</button>
+  </div>
+</div></div>
+<div id="toast"></div>
+<script>
+var KEY='cc_v4';
+var S={name:'',role:'',classe:'',xp:0,notions:[],planning:[]};
+var _mem={};
+function save(){
+  try{_mem[KEY]=JSON.stringify(S);}catch(e){}
+  try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}
+}
+function load(){
+  var r=null;
+  try{r=localStorage.getItem(KEY);}catch(e){}
+  if(!r){try{r=_mem[KEY]||null;}catch(e){}}
+  if(r){try{var d=JSON.parse(r);if(d&&d.name)S=Object.assign({},S,d);}catch(e){}}
+}
+var _tt;
+function toast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('sh');clearTimeout(_tt);_tt=setTimeout(function(){t.classList.remove('sh');},2600);}
+function goV(id){
+  document.querySelectorAll('.view').forEach(function(v){v.classList.remove('on');});
+  document.getElementById(id).classList.add('on');
+  window.scrollTo(0,0);
+  if(id==='v-eleve')rDash();
+  if(id==='v-notions')rNotions();
+  if(id==='v-plan')rPlan();
+  if(id==='v-cons')rCons();
+  if(id==='v-prof')rProf();
+  if(id==='v-fc')rFC();
+  if(id==='v-dictee')rDictee();
+  if(id==='v-match')rMatch();
+  if(id==='v-prod')rProd();
+}
+var _role=null;
+function pickR(r){
+  _role=r;
+  document.getElementById('re').classList.toggle('sel',r==='eleve');
+  document.getElementById('rp').classList.toggle('sel',r==='prof');
+  document.getElementById('fcl').style.display=r==='eleve'?'':'none';
+}
+function doSetup(){
+  var name=document.getElementById('sn').value.trim();
+  if(!_role){toast('Choisissez votre profil');return;}
+  if(!name){toast('Entrez votre pr\u00e9nom');return;}
+  S.name=name;S.role=_role;
+  S.classe=_role==='eleve'?document.getElementById('sc').value:'';
+  save();initApp();
+}
+function initApp(){
+  document.getElementById('topbar').style.display='flex';
+  document.getElementById('tname').textContent=S.name;
+  if(S.role==='prof'){document.getElementById('modesw').style.display='none';goV('v-prof');}
+  else{document.getElementById('modesw').style.display='flex';goV('v-eleve');}
+}
+function swMode(m){
+  document.getElementById('be').classList.toggle('on',m==='eleve');
+  document.getElementById('bp').classList.toggle('on',m==='prof');
+  goV(m==='prof'?'v-prof':'v-eleve');
+}
+function logout(){
+  S={name:'',role:'',classe:'',xp:0,notions:[],planning:[]};
+  save();_role=null;
+  document.getElementById('topbar').style.display='none';
+  document.getElementById('re').classList.remove('sel');
+  document.getElementById('rp').classList.remove('sel');
+  document.getElementById('sn').value='';
+  document.getElementById('fcl').style.display='';
+  goV('v-setup');
+}
+function rDash(){
+  document.getElementById('ew').textContent='Bonjour, '+S.name+' \uD83D\uDC4B';
+  document.getElementById('es').textContent=S.classe?'Classe : '+S.classe:'Pr\u00eat\u00b7e \u00e0 travailler ?';
+  document.getElementById('xpv').textContent=S.xp;
+  document.getElementById('nc').textContent=S.notions.length+' notion(s)';
+  var td=ds(new Date());
+  var due=S.planning.filter(function(p){return p.next<=td;});
+  var bar=document.getElementById('duebar');
+  if(due.length){bar.style.display='flex';document.getElementById('duecount').textContent=due.length+' notion(s) \u00e0 revoir aujourd\u2019hui';}
+  else{bar.style.display='none';}
+  document.getElementById('pc').textContent=S.planning.length+' entr\u00e9e(s) \u00b7 '+due.length+' \u00e0 r\u00e9viser';
+}
+function rNotions(){
+  var c=document.getElementById('nlist');
+  if(!S.notions.length){c.innerHTML='<p style="color:var(--t3);font-size:.84rem">Aucune notion. Clique sur \u201c+ Ajouter\u201d.</p>';return;}
+  var bm={};
+  S.notions.forEach(function(n,i){var m=n.mat||'G\u00e9n\u00e9ral';if(!bm[m])bm[m]=[];bm[m].push(Object.assign({},n,{idx:i}));});
+  c.innerHTML=Object.entries(bm).map(function(e){var mat=e[0],items=e[1];return '<div class="msec"><div class="mhdr"><span class="mlbl">'+esc(mat)+'</span><span style="font-size:.76rem;color:var(--t3)">'+items.length+' notion(s)</span></div><div class="nlist">'+items.map(function(n){return '<div class="nitem"><div><strong style="font-size:.86rem;color:var(--ar)">'+esc(n.q)+'</strong> <span style="color:var(--t3);margin:0 5px">\u2192</span> <span style="font-size:.8rem;color:var(--t2)">'+esc(n.a)+'</span></div><button class="btn bd bsm" onclick="delN('+n.idx+')">&#x1F5D1;</button></div>';}).join('')+'</div></div>';}).join('');
+}
+function saveN(){
+  var mat=document.getElementById('amat').value.trim()||'G\u00e9n\u00e9ral';
+  var raw=document.getElementById('aitems').value;
+  var items=raw.split('\n').map(function(l){return l.trim();}).filter(function(l){return l.includes('|');}).map(function(l){var p=l.split('|');return{mat:mat,q:p[0].trim(),a:p.slice(1).join('|').trim()};}).filter(function(n){return n.q&&n.a;});
+  if(!items.length){toast('Aucune notion valide \u2014 utilise terme | r\u00e9ponse');return;}
+  S.notions=S.notions.concat(items);save();
+  closeOv('m-add');
+  document.getElementById('amat').value='';
+  document.getElementById('aitems').value='';
+  toast(items.length+' notion(s) ajout\u00e9e(s) \u2713');
+  rNotions();
+}
+function delN(i){S.notions.splice(i,1);save();toast('Notion supprim\u00e9e');rNotions();}
+var TIPS=[
+  {i:'\uD83C\uDFAF',t:'Se tester, m\u00eame sur des questions faciles, marche mieux que relire. Ton cerveau retient mieux quand il fait l\u2019effort de chercher.'},
+  {i:'\uD83D\uDD50',t:'Revoir dans quelques jours, c\u2019est plus efficace qu\u2019un gros bloc de r\u00e9vision ce soir. Ton cerveau a besoin de temps.'},
+  {i:'\uD83E\uDDE9',t:'5 \u00e0 7 notions \u00e0 la fois, c\u2019est le max. Mieux vaut 5 choses vraiment sues que 20 vues trop vite.'},
+  {i:'\uD83D\uDCAC',t:'R\u00e9expliquer avec tes propres mots, c\u2019est la preuve que tu as compris \u2014 pas juste m\u00e9moris\u00e9.'},
+  {i:'\uD83D\uDE34',t:'Le sommeil aide ton cerveau \u00e0 ranger ce que tu as appris. R\u00e9viser avant de dormir, c\u2019est une bonne id\u00e9e !'},
+  {i:'\u2705',t:'Savoir ce qu\u2019on sait vraiment \u2014 c\u2019est un skill cl\u00e9. Tu viens de l\u2019exercer !'},
+  {i:'\uD83D\uDD0A',t:'En langues, entendre les mots en m\u00eame temps que tu les lis booste vraiment la m\u00e9morisation. Active l\u2019audio !'},
+  {i:'\uD83D\uDDE3',t:'Dire les mots \u00e0 voix haute pendant que tu r\u00e9vises aide \u00e0 les ancrer. Essaie de les prononcer !'}
+];
+var sess={step:0,items:[],qi:0,score:0};
+function startSess(){
+  if(!S.notions.length){toast('Ajoute d\u2019abord des notions \u00e0 r\u00e9viser');return;}
+  sess={step:0,items:shuf(S.notions.slice()).slice(0,7),qi:0,score:0};
+  goV('v-sess');rSess();
+}
+function rSess(){
+  ['p0','p1','p2'].forEach(function(id,i){var el=document.getElementById(id);el.className='pill'+(i<sess.step?' dn':i===sess.step?' ac':'');});
+  var c=document.getElementById('scnt');
+  if(sess.step===0)stp1(c);else if(sess.step===1)stp2(c);else stp3(c);
+}
+function stp1(c){
+  var tip=TIPS[2];
+  c.innerHTML='<div class="sc"><div class="slbl">\u00c9tape 1 \u2014 Rappel</div><p style="font-size:.83rem;color:var(--t2);margin-bottom:12px">Lis attentivement ces '+sess.items.length+' notions :</p><table style="width:100%;font-size:.83rem;border-collapse:collapse"><thead><tr><th style="text-align:left;padding:7px 11px;background:var(--pa2);font-family:Lexend,sans-serif;color:var(--ar);border-radius:8px 0 0 0">Notion</th><th style="text-align:left;padding:7px 11px;background:var(--pa2);font-family:Lexend,sans-serif;color:var(--ar);border-radius:0 8px 0 0">R\u00e9ponse</th></tr></thead><tbody>'+sess.items.map(function(n){return '<tr><td style="padding:7px 11px;border-bottom:1px solid var(--pa2)">'+esc(n.q)+'</td><td style="padding:7px 11px;border-bottom:1px solid var(--pa2)">'+esc(n.a)+'</td></tr>';}).join('')+'</tbody></table><div class="tip"><div>'+tip.i+'</div><div>'+tip.t+'</div></div></div><button class="btn bp bfw" onclick="sess.step=1;rSess()">J\u2019ai lu \u2014 passer au quiz \u2192</button>';
+}
+function stp2(c){
+  if(sess.qi>=sess.items.length){sess.step=2;rSess();return;}
+  var item=sess.items[sess.qi];
+  var pool=sess.items.filter(function(n){return n.a!==item.a;}).map(function(n){return n.a;});
+  if(pool.length<3)pool=pool.concat(['...','---','?'].slice(0,3-pool.length));
+  var opts=shuf([item.a].concat(shuf(pool).slice(0,3)));
+  c.innerHTML='<div class="sc"><div class="slbl">\u00c9tape 2 \u2014 Quiz ('+(sess.qi+1)+'/'+sess.items.length+')</div><div class="sq">'+esc(item.q)+'</div><div class="agrid">'+opts.map(function(o,i){return '<button class="abtn" id="o'+i+'" onclick="chk('+i+',\''+esc2(o)+'\',\''+esc2(item.a)+'\')">'+esc(o)+'</button>';}).join('')+'</div><div id="fb"></div></div><div style="font-size:.76rem;color:var(--t3)">Score : '+sess.score+'/'+sess.qi+'</div>';
+}
+function chk(idx,chosen,correct){
+  document.querySelectorAll('.abtn').forEach(function(b){b.disabled=true;});
+  var ok=chosen===correct;
+  if(ok)sess.score++;
+  document.querySelectorAll('.abtn').forEach(function(b,i){
+    if(i===idx)b.classList.add(ok?'ok':'ko');
+    if(b.textContent.trim()===correct&&!ok)b.classList.add('ok');
+  });
+  var tip=TIPS[Math.floor(Math.random()*TIPS.length)];
+  var isLast=sess.qi+1>=sess.items.length;
+  document.getElementById('fb').innerHTML='<div class="fbx '+(ok?'ok':'ko')+'"><strong>'+(ok?'\u2705 Correct !':'\u274C Pas encore')+'</strong>'+(ok?'Bonne r\u00e9ponse.':'La r\u00e9ponse \u00e9tait : <strong>'+esc(correct)+'</strong>')+'</div><div class="tip"><div>'+tip.i+'</div><div>'+tip.t+'</div></div><button class="btn bp bfw" style="margin-top:11px" onclick="nxtQ()">'+(isLast?'Voir le bilan \u2192':'Question suivante \u2192')+'</button>';
+}
+function nxtQ(){sess.qi++;if(sess.qi>=sess.items.length){sess.step=2;rSess();}else stp2(document.getElementById('scnt'));}
+function stp3(c){
+  var total=sess.items.length,pct=Math.round(sess.score/total*100);
+  var xpG=sess.score*5+(pct>=80?20:0);
+  S.xp+=xpG;
+  sess.items.forEach(function(n){
+    var key=n.mat+'|'+n.q;
+    var ex=S.planning.filter(function(p){return p.key===key;})[0];
+    if(ex){ex.sessions=(ex.sessions||0)+1;ex.next=ds(addD(new Date(),getIv(ex.sessions)));}
+    else S.planning.push({key:key,label:n.q,mat:n.mat,sessions:1,next:ds(addD(new Date(),1))});
+  });
+  save();
+  c.innerHTML='<div class="sc"><div class="slbl">\u00c9tape 3 \u2014 Bilan</div><div class="recap"><div class="rscore">'+sess.score+'/'+total+'</div><div class="rlbl">'+(pct>=80?'\uD83C\uDF1F Excellent !':pct>=60?'\uD83D\uDC4D Bien !':'\uD83D\uDCAA Continue !') +' \u00b7 +'+xpG+' XP</div><p style="font-size:.78rem;color:var(--t2)">Prochaines r\u00e9visions :</p><div class="dcs"><span class="dc">\uD83D\uDCC5 '+dp(1)+'</span><span class="dc">\uD83D\uDCC5 '+dp(3)+'</span><span class="dc">\uD83D\uDCC5 '+dp(7)+'</span><span class="dc">\uD83D\uDCC5 '+dp(14)+'</span></div></div></div><div class="sc"><div class="slbl">Auto-\u00e9valuation</div><p style="font-size:.83rem;color:var(--t2);margin-bottom:11px">Comment tu \u00e9values ta ma\u00eetrise globale ?</p><div class="seva"><button class="evb e1" onclick="pEv(this)">\uD83D\uDE1F<br>Pas encore</button><button class="evb e2" onclick="pEv(this)">\uD83E\uDD14<br>En progr\u00e8s</button><button class="evb e3" onclick="pEv(this)">\uD83D\uDE0A<br>Bien ma\u00eetris\u00e9</button></div><div id="evok" style="display:none"><div class="tip"><div>\uD83E\uDEDE</div><div>Savoir \u00e9valuer ce qu\u2019on sait vraiment \u2014 c\u2019est un skill cl\u00e9. Tu viens de l\u2019exercer !</div></div><button class="btn bv bfw" style="margin-top:12px" onclick="goV(\'v-eleve\')">Terminer la s\u00e9ance \u2713</button></div></div>';
+}
+function pEv(btn){document.querySelectorAll('.evb').forEach(function(b){b.classList.remove('sel');});btn.classList.add('sel');document.getElementById('evok').style.display='block';}
+/* FLASHCARDS */
+var fcIdx=0,fcIt=[],fcFl=false;
+function rFC(){
+  var c=document.getElementById('fccnt');
+  if(!S.notions.length){c.innerHTML='<div class="cap"><h4>\uD83C\uDFCF Flashcards</h4><p>Ajoute des notions pour utiliser cet outil.</p></div><button class="btn bp" onclick="goV(\'v-notions\')">Ajouter des notions \u2192</button>';return;}
+  fcIt=shuf(S.notions.slice());fcIdx=0;fcFl=false;rdFC(c);
+}
+function rdFC(c){
+  if(!c)c=document.getElementById('fccnt');
+  var item=fcIt[fcIdx];
+  var hasTTS=('speechSynthesis' in window);
+  var html='<div class="cap"><h4>\uD83C\uDFCF Flashcards audio</h4>';
+  html+='<p>Clique sur la carte pour retourner.</p></div>';
+  html+='<div class="fcw" onclick="flipFC()"><div class="fcc" id="fcc">';
+  html+='<div class="fcf fcfr"><div class="fch" style="margin-bottom:8px">'+esc(item.mat||'')+'</div>';
+  html+='<div class="fcw2">'+esc(item.q)+'</div>';
+  html+='<div class="fch">Clique pour voir la r\u00e9ponse</div></div>';
+  html+='<div class="fcf fcbk"><div class="fch" style="margin-bottom:8px">R\u00e9ponse</div>';
+  html+='<div class="fcw2">'+esc(item.a)+'</div>';
+  html+='<div class="fch">Retourne pour la suivante</div></div></div></div>';
+  if(hasTTS){
+    html+='<div style="background:var(--pa2);border-radius:var(--rs);padding:10px 14px;margin-bottom:12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">';
+    html+='<span style="font-size:.76rem;font-weight:600;color:var(--t2)">Langue audio :</span>';
+    html+='<select id="fc-lang" style="padding:4px 8px;border:1.5px solid var(--bo);border-radius:6px;font-size:.8rem;background:var(--wh)">';
+    html+='<option value="en-GB">\uD83C\uDDEC\uD83C\uDDE7 Anglais</option>';
+    html+='<option value="fr-FR">\uD83C\uDDEB\uD83C\uDDF7 Fran\u00e7ais</option>';
+    html+='<option value="es-ES">\uD83C\uDDEA\uD83C\uDDF8 Espagnol</option>';
+    html+='<option value="de-DE">\uD83C\uDDE9\uD83C\uDDEA Allemand</option>';
+    html+='<option value="it-IT">\uD83C\uDDEE\uD83C\uDDF9 Italien</option>';
+    html+='</select>';
+    html+='<button class="btn bl bsm" onclick="spkFC(0)">\uD83D\uDD0A Terme</button>';
+    html+='<button class="btn bl bsm" onclick="spkFC(1)">\uD83D\uDD0A R\u00e9ponse</button>';
+    html+='</div>';
+  }
+  html+='<div class="fcctrl">';
+  html+='<button class="btn bg bsm" onclick="pvFC()"'+(fcIdx===0?' disabled':'')+'>&#x2190; Pr\u00e9c.</button>';
+  html+='<button class="btn bg bsm" onclick="nxFC()"'+(fcIdx>=fcIt.length-1?' disabled':'')+'>Suiv. &#x2192;</button>';
+  html+='</div>';
+  html+='<p style="text-align:center;font-size:.76rem;color:var(--t3)">'+(fcIdx+1)+' / '+fcIt.length+'</p>';
+  c.innerHTML=html;
+}
+function spkFC(side){
+  var item=fcIt[fcIdx];
+  var text=side===0?item.q:item.a;
+  var sel=document.getElementById('fc-lang');
+  var lang=sel?sel.value:'en-GB';
+  spk(text,lang);
+}
+function flipFC(){fcFl=!fcFl;var c=document.getElementById('fcc');if(c)c.classList.toggle('fl',fcFl);}
+function nxFC(){if(fcIdx<fcIt.length-1){fcIdx++;fcFl=false;rdFC();}}
+function pvFC(){if(fcIdx>0){fcIdx--;fcFl=false;rdFC();}}
+function spk(text,lang){try{if(!('speechSynthesis' in window))return;lang=lang||'en-GB';window.speechSynthesis.cancel();var u=new SpeechSynthesisUtterance(text);u.lang=lang;u.rate=0.85;window.speechSynthesis.speak(u);}catch(e){console.warn('TTS',e);}}
+/* DICTEE */
+var dIt=[],dIdx=0,dSc=0,dTot=0;
+function rDictee(){
+  var c=document.getElementById('dcnt');
+  if(!S.notions.length){c.innerHTML='<div class="cap"><h4>\uD83C\uDFA7 Dict\u00e9e</h4><p>Ajoute des notions pour utiliser cet outil.</p></div><button class="btn bp" onclick="goV(\'v-notions\')">Ajouter des notions \u2192</button>';return;}
+  if(!('speechSynthesis' in window)){c.innerHTML='<div class="cap"><h4>\uD83C\uDFA7 Dict\u00e9e</h4><p>La synth\u00e8se vocale n\u2019est pas disponible sur ce navigateur. Essaie Chrome ou Edge.</p></div>';return;}
+  dIt=shuf(S.notions.slice()).slice(0,8);dIdx=0;dSc=0;dTot=dIt.length;
+  rdDQ(c);
+}
+function rdDQ(c){
+  if(!c)c=document.getElementById('dcnt');
+  if(dIdx>=dIt.length){
+    var pct=Math.round(dSc/dTot*100);
+    c.innerHTML='<div class="sc"><div class="slbl">R\u00e9sultat</div><div class="recap"><div class="rscore">'+dSc+'/'+dTot+'</div><div class="rlbl">'+(pct>=80?'\uD83C\uDF1F Excellent !':pct>=60?'\uD83D\uDC4D Bien !':'\uD83D\uDCAA Continue !')+'</div></div></div><button class="btn bp bfw" style="margin-top:12px" onclick="rDictee()">Recommencer</button><button class="btn bg bfw" style="margin-top:8px" onclick="goV(\'v-eleve\')">Retour au menu</button>';
+    return;
+  }
+  var item=dIt[dIdx];
+  c.innerHTML='<div class="sc"><div class="slbl">Dict\u00e9e \u2014 '+(dIdx+1)+'/'+dTot+'</div><p style="font-size:.84rem;color:var(--t2);margin-bottom:14px">\u00c9coute le mot et \u00e9cris-le :</p><div style="display:flex;gap:9px;justify-content:center;margin-bottom:18px;flex-wrap:wrap"><button class="btn bl" onclick="spkW(\''+item.q+'\',0.85,\''+lng+'\')">'+'\uD83D\uDD0A \u00c9couter</button><button class="btn bg bsm" onclick="spkW(\''+item.q+'\',0.6,\''+lng+'\'">\uD83D\uDC22 Lentement</button></div><input id="dans" type="text" placeholder="\u00c9cris ta r\u00e9ponse ici\u2026" style="width:100%;padding:12px;border:2px solid var(--bo);border-radius:var(--rs);font-size:1rem;text-align:center;background:var(--wh)" autocomplete="off"><button class="btn bp bfw" style="margin-top:10px" id="btnval" onclick="chkD(dIt[dIdx])">&#x2713; Valider</button><div id="dfb" style="margin-top:12px"></div></div><p style="text-align:center;font-size:.76rem;color:var(--t3);margin-top:8px">Score : '+dSc+'/'+dIdx+'</p>';
+  document.getElementById('dans').addEventListener('keydown',function(e){if(e.key==='Enter')chkD(item);});
+  setTimeout(function(){spkW(item.q);},400);
+}
+
+function spkW(text,rate){try{rate=rate||0.85;if(!('speechSynthesis' in window))return;window.speechSynthesis.cancel();var u=new SpeechSynthesisUtterance(text);u.lang='en-GB';u.rate=rate;window.speechSynthesis.speak(u);}catch(e){console.warn('TTS',e);}}
+function chkD(item){
+  var ans=document.getElementById('dans').value.trim().toLowerCase();
+  var ok=ans===item.a.toLowerCase()||ans===item.q.toLowerCase();
+  if(ok)dSc++;
+  document.getElementById('dfb').innerHTML='<div class="fbx '+(ok?'ok':'ko')+'"><strong>'+(ok?'\u2705 Correct !':'\u274C Pas tout \u00e0 fait')+'</strong>'+(ok?'Bonne r\u00e9ponse !':'La r\u00e9ponse \u00e9tait : <strong>'+esc(item.a)+'</strong> (terme : '+esc(item.q)+')')+'</div><button class="btn bp bfw" style="margin-top:10px" onclick="dIdx++;rdDQ()">'+(dIdx+1>=dTot?'Voir le r\u00e9sultat \u2192':'Mot suivant \u2192')+'</button>';
+  document.getElementById('dans').disabled=true;
+}
+/* MATCHING */
+var mIt=[],mSel=null,mPairs,mSc=0;
+function rMatch(){
+  var c=document.getElementById('mcnt');
+  if(S.notions.length<3){c.innerHTML='<div class="cap"><h4>\uD83D\uDD17 Matching</h4><p>Ajoute au moins 4 notions pour utiliser cet outil.</p></div><button class="btn bp" onclick="goV(\'v-notions\')">Ajouter des notions \u2192</button>';return;}
+  mIt=shuf(S.notions.slice()).slice(0,6);mSel=null;mPairs=new Set();mSc=0;
+  rdMG(c);
+}
+function rdMG(c){
+  if(!c)c=document.getElementById('mcnt');
+  var lefts=mIt.map(function(n,i){return {id:'q'+i,text:n.q,pair:i};});
+  var rights=shuf(mIt.map(function(n,i){return {id:'a'+i,text:n.a,pair:i};}));
+  c.innerHTML='<div class="cap"><h4>\uD83D\uDD17 Matching</h4><p>Tape sur un terme \u00e0 gauche, puis sa correspondance \u00e0 droite.</p></div><div class="mgrid"><div class="mcol" id="cl">'+lefts.map(function(it){return '<div class="mi" id="'+it.id+'" data-pair="'+it.pair+'" data-side="q" onclick="mTap(this)">'+esc(it.text)+'</div>';}).join('')+'</div><div class="mcol" id="cr">'+rights.map(function(it){return '<div class="mi" id="'+it.id+'" data-pair="'+it.pair+'" data-side="a" onclick="mTap(this)">'+esc(it.text)+'</div>';}).join('')+'</div></div><p id="mst" style="text-align:center;font-size:.82rem;color:var(--t2);margin-top:8px">'+mIt.length+' paires \u00e0 trouver</p>';
+}
+function mTap(el){
+  if(el.classList.contains('mat'))return;
+  if(mSel===null){mSel=el;el.classList.add('sel');return;}
+  if(mSel===el){mSel.classList.remove('sel');mSel=null;return;}
+  if(mSel.dataset.side===el.dataset.side){mSel.classList.remove('sel');mSel=el;el.classList.add('sel');return;}
+  var ok=mSel.dataset.pair===el.dataset.pair;
+  if(ok){
+    [mSel,el].forEach(function(e){e.classList.remove('sel');e.classList.add('mat');e.onclick=null;});
+    mPairs.add(mSel.dataset.pair);mSc++;mSel=null;
+    if(mPairs.size===mIt.length){
+      document.getElementById('mst').innerHTML='<strong style="color:var(--va)">\uD83C\uDF89 Toutes les paires ! +'+mIt.length*3+' XP</strong>';
+      S.xp+=mIt.length*3;save();
+      document.getElementById('mcnt').insertAdjacentHTML('beforeend','<button class="btn bp bfw" style="margin-top:14px" onclick="rMatch()">Nouvelle partie</button>');
+    }
+  }else{
+    [mSel,el].forEach(function(e){e.classList.add('wfl');setTimeout(function(){e.classList.remove('wfl');},700);});
+    mSel.classList.remove('sel');mSel=null;
+  }
+}
+/* PRODUCTION */
+var PRODS=[
+  {cat:'Vocabulaire en contexte',q:'Compl\u00e8te : "Yesterday I _____ to the museum." (go)',hint:'Utilise le pr\u00e9trit du verbe go.',a:'went',chk:'exact'},
+  {cat:'Reformulation',q:'Reformule \u00e0 la voix passive : "The students wrote the essay."',hint:'Commence par "The essay\u2026"',a:'The essay was written by the students.',chk:'contains'},
+  {cat:'Traduction guid\u00e9e',q:'Traduis en anglais : "Il faut que tu travailles davantage."',hint:'Utilise "You need to\u2026" ou "You should\u2026"',a:'you need to work more',chk:'contains'},
+  {cat:'Expression',q:'D\u00e9cris en 2 phrases une chose que tu as faite hier, en anglais.',hint:'Utilise le pr\u00e9trit : I went, I ate, I watched\u2026',a:null,chk:'open'},
+  {cat:'Reformulation',q:'Reformule avec "although" : "She was tired. She finished her homework."',hint:'"Although she was tired, she\u2026"',a:'although she was tired, she finished',chk:'contains'},
+  {cat:'Grammaire',q:'Mets au bon temps : "If I (have) more time, I would learn Japanese."',hint:'Conditionnel 2 \u2014 subordonnee en "if".',a:'had',chk:'exact'},
+  {cat:'Expression',q:'\u00c9cris une phrase avec "despite" pour exprimer une concession.',hint:'"Despite the rain, we\u2026" ou "Despite being tired, she\u2026"',a:null,chk:'open'}
+];
+var prodIdx=0;
+function rProd(){prodIdx=Math.floor(Math.random()*PRODS.length);rdPQ(document.getElementById('prodcnt'));}
+function rdPQ(c){
+  if(!c)c=document.getElementById('prodcnt');
+  var p=PRODS[prodIdx];
+  c.innerHTML='<div class="cap"><h4>\u270D\uFE0F Production \u00e9crite guid\u00e9e</h4><p>Un exercice court, guid\u00e9, avec feedback imm\u00e9diat.</p></div><div class="sc"><div class="slbl">'+esc(p.cat)+'</div><div class="sq">'+esc(p.q)+'</div><div class="tip" style="margin-bottom:14px"><div>\uD83D\uDCA1</div><div>'+esc(p.hint)+'</div></div><textarea id="pa" placeholder="Ta r\u00e9ponse ici\u2026" style="width:100%;padding:12px;border:2px solid var(--bo);border-radius:var(--rs);font-size:.9rem;background:var(--wh);min-height:80px;resize:vertical"></textarea><div id="pfb" style="margin-top:12px"></div><button class="btn bp" style="margin-top:10px" onclick="chkP()">V\u00e9rifier \u2192</button></div>';
+}
+function chkP(){
+  var ans=document.getElementById('pa').value.trim();
+  if(!ans){toast('\u00c9cris ta r\u00e9ponse d\u2019abord');return;}
+  var p=PRODS[prodIdx];var fb=document.getElementById('pfb');var html='';
+  if(p.chk==='open'){html='<div class="fbx ok"><strong>\u2705 R\u00e9ponse enregistr\u00e9e</strong>Exercice libre \u2014 relis ta r\u00e9ponse : ponctuation, majuscules, temps verbal.</div>';}
+  else if(p.chk==='exact'){var ok=ans.toLowerCase().includes(p.a.toLowerCase());html='<div class="fbx '+(ok?'ok':'ko')+'"><strong>'+(ok?'\u2705 Correct !':'\u274C Pas tout \u00e0 fait')+'</strong>'+(ok?'Bonne r\u00e9ponse !':'R\u00e9ponse attendue : <strong>'+esc(p.a)+'</strong>')+'</div>';}
+  else{var ok2=ans.toLowerCase().includes(p.a.toLowerCase());html='<div class="fbx '+(ok2?'ok':'ko')+'"><strong>'+(ok2?'\u2705 Correct !':'\u26A0\uFE0F V\u00e9rifie ta r\u00e9ponse')+'</strong>'+(ok2?'Bien construit !':'\u00c9l\u00e9ment attendu : <strong>'+esc(p.a)+'</strong>')+'</div>';}
+  html+='<button class="btn bg" style="margin-top:10px" onclick="prodIdx=(prodIdx+1)%PRODS.length;rdPQ()">Autre exercice \u2192</button>';
+  fb.innerHTML=html;
+}
+/* PLANNING */
+function rPlan(){
+  var c=document.getElementById('plancnt');
+  if(!S.planning.length){c.innerHTML='<p style="color:var(--t3);font-size:.83rem">Lance d\u2019abord une s\u00e9ance de travail pour d\u00e9marrer ton planning.</p>';return;}
+  var td=ds(new Date());
+  var srt=S.planning.slice().sort(function(a,b){return a.next.localeCompare(b.next);});
+  c.innerHTML='<table class="ptbl"><thead><tr><th>Notion</th><th>Mati\u00e8re</th><th>S\u00e9ances</th><th>Prochaine r\u00e9vision</th><th>Statut</th></tr></thead><tbody>'+srt.map(function(p){var late=p.next<td,tod=p.next===td;var cls=late?'pl':tod?'pj':'pt';var lbl=late?'En retard':tod?"Aujourd'hui":'A venir';return '<tr><td><strong>'+esc(p.label)+'</strong></td><td>'+esc(p.mat||'\u2014')+'</td><td>'+p.sessions+'</td><td>'+fmtD(p.next)+'</td><td><span class="bp2 '+cls+'">'+lbl+'</span></td></tr>';}).join('')+'</tbody></table>';
+}
+/* CONSEILS */
+var CONS={
+  'M\u00e9moriser':[
+    {title:'Revoir plusieurs fois, pas tout d\u2019un coup',cat:'M\u00e9moriser',text:'Revoir quelque chose plusieurs fois en espa\u00e7ant les r\u00e9visions, c\u2019est bien mieux que tout bosser d\u2019un coup la veille. Ton cerveau retient mieux avec du temps entre les sessions.',ex:'Tu apprends 10 mots lundi \u2192 revois-les mardi, puis jeudi, puis la semaine d\u2019apr\u00e8s. \u00c7a s\u2019ancre vraiment.'},
+    {title:'Te tester plut\u00f4t que relire',cat:'M\u00e9moriser',text:'Quand tu te poses des questions sur ce que tu viens d\u2019apprendre, ton cerveau travaille bien plus fort que si tu relis juste. Et \u00e7a marche mieux !',ex:'Cache ta le\u00e7on. Essaie d\u2019\u00e9crire ce dont tu te souviens. Ce que tu as oubli\u00e9 = ce qu\u2019il faut retravailler.'},
+    {title:'Ne pas tout faire en m\u00eame temps',cat:'M\u00e9moriser',text:'Ton cerveau peut g\u00e9rer 5 \u00e0 7 choses \u00e0 la fois maximum. Au-del\u00e0, c\u2019est la surchauffe \u2014 tu lis mais tu ne retiens rien.',ex:'\u00c9tudie une notion \u00e0 la fois. Fais des pauses toutes les 20 min. T\u00e9l\u00e9phone rang\u00e9.'},
+    {title:'R\u00e9expliquer avec ses propres mots',cat:'M\u00e9moriser',text:'Relier une info nouvelle \u00e0 ce que tu sais d\u00e9j\u00e0 et l\u2019expliquer avec tes propres mots : c\u2019est le meilleur moyen de vraiment comprendre.',ex:'Apr\u00e8s une r\u00e8gle, invente 3 phrases \u00e0 toi. Explique-la \u00e0 un camarade ou \u00e0 voix haute !'},
+    {title:'Savoir ce qu\u2019on sait (et ce qu\u2019on ne sait pas)',cat:'M\u00e9moriser',text:'Beaucoup d\u2019\u00e9l\u00e8ves croient savoir une le\u00e7on parce qu\u2019ils l\u2019ont lue. Mais lire \u2260 savoir. Se tester honn\u00eatement \u00e9vite les mauvaises surprises.',ex:'Apr\u00e8s chaque r\u00e9vision, trie tes notions : "Je sais", "Pas s\u00fbr\u00b7e", "Je ne sais pas encore". Travaille surtout les deux derni\u00e8res.'}
+  ],
+  'Comprendre \u00e0 l\u2019oral':[
+    {title:'\u00c9coute globale d\u2019abord, d\u00e9tail ensuite',cat:'Comprendre \u00e0 l\u2019oral',text:'La premi\u00e8re \u00e9coute, c\u2019est pour comprendre le sens g\u00e9n\u00e9ral \u2014 pas chaque mot. Ne panique pas si tu ne comprends pas tout. C\u2019est normal !',ex:'Demande-toi : Qui parle ? De quoi ? Dans quel contexte ? Ensuite seulement cherche les d\u00e9tails.'},
+    {title:'Utilise le contexte pour deviner',cat:'Comprendre \u00e0 l\u2019oral',text:'Les mots inconnus, on peut souvent les deviner gr\u00e2ce aux mots autour, au ton de la voix, aux bruits de fond.',ex:'Tu n\u2019entends pas un mot ? Cherche des indices dans le reste de la phrase. Ne reste pas bloqu\u00e9\u00b7e dessus.'},
+    {title:'Entra\u00eene ton oreille chaque jour un peu',cat:'Comprendre \u00e0 l\u2019oral',text:'L\u2019\u00e9coute, \u00e7a se travaille r\u00e9guli\u00e8rement. Des petites sessions quotidiennes valent bien mieux qu\u2019une longue session par semaine.',ex:'5 min de podcasts, s\u00e9ries, YouTube en anglais par jour \u2014 sans sous-titres si possible. Tu verras les progr\u00e8s !'},
+    {title:'Rep\u00e8re les mots accentu\u00e9s',cat:'Comprendre \u00e0 l\u2019oral',text:'En anglais, ce sont les mots importants (noms, verbes, adjectifs) qui sont prononc\u00e9s fort. Les petits mots (a, the, of\u2026) sont souvent aval\u00e9s.',ex:'\u00c0 l\u2019\u00e9coute, concentre-toi sur les mots mis en valeur plut\u00f4t que d\u2019essayer d\u2019entendre chaque syllabe.'}
+  ],
+  'Comprendre \u00e0 l\u2019\u00e9crit':[
+    {title:'Lis le titre et la source en premier',cat:'Comprendre \u00e0 l\u2019\u00e9crit',text:'Avant de lire le texte, regarde le titre, la source, les images. \u00c7a pr\u00e9pare ton cerveau et facilite la compr\u00e9hension.',ex:'Un titre comme "Climate change : who pays ?" te dit d\u00e9j\u00e0 beaucoup. \u00c7a active tes connaissances sur le sujet.'},
+    {title:'Identifie les mots transparents',cat:'Comprendre \u00e0 l\u2019\u00e9crit',text:'Les mots qui ressemblent au fran\u00e7ais sont tes alli\u00e9s. "government", "conclusion", "population" \u2014 tu les comprends d\u00e9j\u00e0 !',ex:'Souligne tous les mots que tu peux deviner avant de chercher dans le dictionnaire. Tu en sais souvent plus que tu ne crois.'},
+    {title:'Ne traduis pas mot \u00e0 mot',cat:'Comprendre \u00e0 l\u2019\u00e9crit',text:'Essaie de comprendre le sens global d\u2019un paragraphe, pas de traduire chaque mot. \u00c7a te ralentit et cr\u00e9e des contresens.',ex:'Lis le paragraphe entier. Demande-toi : quelle est l\u2019id\u00e9e principale ? Ensuite reviens sur les d\u00e9tails.'},
+    {title:'Rep\u00e8re les connecteurs logiques',cat:'Comprendre \u00e0 l\u2019\u00e9crit',text:'"However", "therefore", "although"\u2026 Ces mots indiquent la structure du texte et t\u2019aident \u00e0 anticiper ce qui vient.',ex:'Souligne les connecteurs. "However" = opposition. "Therefore" = cons\u00e9quence. \u00c7a d\u00e9code la logique du texte.'}
+  ],
+  'S\u2019exprimer \u00e0 l\u2019\u00e9crit':[
+    {title:'Planifie avant d\u2019\u00e9crire',cat:'S\u2019exprimer \u00e0 l\u2019\u00e9crit',text:'2 minutes de plan \u00e9vitent 20 minutes de brouillon rat\u00e9. Note tes id\u00e9es principales avant de r\u00e9diger.',ex:'Id\u00e9e 1 \u2192 argument + exemple. Id\u00e9e 2 \u2192 argument + exemple. Conclusion. Simple et efficace.'},
+    {title:'Utilise des connecteurs vari\u00e9s',cat:'S\u2019exprimer \u00e0 l\u2019\u00e9crit',text:'Les connecteurs structurent ta r\u00e9ponse et montrent que tu ma\u00eetrises la langue. \u00c9vite de toujours commencer par "And".',ex:'"Firstly\u2026 Moreover\u2026 However\u2026 In conclusion\u2026" \u2014 apprends quelques connecteurs par c\u0153ur et utilise-les.'},
+    {title:'Relis avec les yeux du correcteur',cat:'S\u2019exprimer \u00e0 l\u2019\u00e9crit',text:'Apr\u00e8s avoir \u00e9crit, relis en cherchant sp\u00e9cifiquement les erreurs fr\u00e9quentes : accord, temps verbaux, majuscules, ponctuation.',ex:'Lis ta production \u00e0 voix haute. Les phrases \u00e9tranges ou les erreurs se d\u00e9tectent mieux \u00e0 l\u2019oral.'},
+    {title:'Enrichis ton vocabulaire actif',cat:'S\u2019exprimer \u00e0 l\u2019\u00e9crit',text:'Un mot appris passivement n\u2019est pas forc\u00e9ment disponible \u00e0 l\u2019\u00e9crit. Il faut pratiquer l\u2019utiliser activement.',ex:'Pour chaque mot nouveau, \u00e9cris une phrase qui te concerne. "I feel overwhelmed when\u2026" ancre le mot dans ta m\u00e9moire.'}
+  ],
+  'S\u2019exprimer \u00e0 l\u2019oral':[
+    {title:'Parle, m\u00eame si ce n\u2019est pas parfait',cat:'S\u2019exprimer \u00e0 l\u2019oral',text:'L\u2019objectif de la communication, c\u2019est d\u2019\u00eatre compris\u00b7e \u2014 pas d\u2019\u00eatre parfait\u00b7e. Les erreurs sont normales et font partie de l\u2019apprentissage.',ex:'Engage-toi dans les \u00e9changes, m\u00eame avec des approximations. "I think\u2026 something like\u2026 I mean\u2026" \u2014 ce sont de vraies strat\u00e9gies !'},
+    {title:'Pr\u00e9pare des phrases d\u2019amorce',cat:'S\u2019exprimer \u00e0 l\u2019oral',text:'Quelques formules apprises par c\u0153ur te permettent de gagner du temps et d\u2019organiser ta parole.',ex:'"In my opinion\u2026", "I would say that\u2026", "That\u2019s a good point, however\u2026", "Could you repeat please ?" \u2014 entra\u00eene-toi !'},
+    {title:'Entra\u00eene-toi \u00e0 parler seul\u00b7e',cat:'S\u2019exprimer \u00e0 l\u2019oral',text:'La production orale, \u00e7a se travaille seul\u00b7e aussi. Commenter ses actions en anglais, se raconter sa journ\u00e9e, d\u00e9crire une image\u2026',ex:'Chaque matin, dis 3 phrases en anglais sur ce que tu vas faire. C\u2019est ridicule ? Oui. Et \u00e7a marche.'},
+    {title:'Travaille ta prononciation par l\u2019imitation',cat:'S\u2019exprimer \u00e0 l\u2019oral',text:'\u00c9couter et r\u00e9p\u00e9ter un locuteur natif (shadowing) est une des meilleures m\u00e9thodes pour am\u00e9liorer son accent.',ex:'Choisis une courte vid\u00e9o YouTube. \u00c9coute une phrase. Mets sur pause. R\u00e9p\u00e8te exactement la m\u00eame chose \u2014 intonation comprise.'}
+  ]
+};
+var curCTab=Object.keys(CONS)[0];
+function rCons(){
+  var tabs=Object.keys(CONS);
+  document.getElementById('ctabs').innerHTML=tabs.map(function(t){return '<button class="tab'+(t===curCTab?' on':'')+'" onclick="swCTab(\''+esc2(t)+'\',this)">'+esc(t)+'</button>';}).join('');
+  rdCC();
+}
+function swCTab(t,el){curCTab=t;document.querySelectorAll('#ctabs .tab').forEach(function(b){b.classList.remove('on');});if(el)el.classList.add('on');rdCC();}
+function rdCC(){
+  var items=CONS[curCTab]||[];
+  document.getElementById('ccnt').innerHTML=items.map(function(c){return '<div class="ccard"><div class="ccat">'+esc(c.cat)+'</div><div class="ctit">'+esc(c.title)+'</div><div class="ctxt">'+esc(c.text)+'</div><div class="cex">\uD83D\uDCA1 '+esc(c.ex)+'</div></div>';}).join('');
+}
+/* PROF */
+var curPTab='str';
+function rProf(){document.getElementById('pw').textContent='Bonjour, '+S.name+' \uD83D\uDC4B';pTab(curPTab,document.querySelector('#ptabs .tab.on'));}
+function pTab(tab,el){
+  curPTab=tab;
+  document.querySelectorAll('#ptabs .tab').forEach(function(t){t.classList.remove('on');});
+  if(el)el.classList.add('on');
+  var c=document.getElementById('pcnt');
+  if(tab==='str'){
+    var strats=[
+      {t:'R\u00e9p\u00e9tition espac\u00e9e',i:'\uD83D\uDD01',cc:'ccl',d:'Revoir \u00e0 des intervalles croissants (J+1, J+3, J+7\u2026). Strat\u00e9gie la plus robuste pour la m\u00e9moire \u00e0 long terme (Ebbinghaus ; Cepeda et al., 2006).',ex:'Programmer des r\u00e9activations en d\u00e9but de s\u00e9ance. CogniCoach calcule automatiquement ces intervalles.'},
+      {t:'Test effect / R\u00e9cup\u00e9ration active',i:'\u2705',cc:'ccl',d:'Se tester est bien plus efficace que relire (Roediger & Karpicke, 2006). L\u2019effort de r\u00e9cup\u00e9ration renforce durablement la trace m\u00e9morielle.',ex:'Proposer des mini-quiz en d\u00e9but de s\u00e9ance plut\u00f4t que des r\u00e9sum\u00e9s \u00e0 relire.'},
+      {t:'Gestion de la charge cognitive',i:'\uD83E\uDDE0',cc:'ccm',d:'Tricot distingue charge intrins\u00e8que, extrins\u00e8que et germane. R\u00e9duire la charge extrins\u00e8que lib\u00e8re des ressources pour l\u2019apprentissage.',ex:'Interface \u00e9pur\u00e9e, consignes courtes, un objectif par s\u00e9ance. Limiter \u00e0 5\u20137 items par session.'},
+      {t:'\u00c9laboration',i:'\uD83D\uDCAC',cc:'ccm',d:'Connecter les nouvelles informations aux connaissances ant\u00e9rieures enrichit les sch\u00e9mas cognitifs (Ausubel).',ex:'Demander \u00e0 l\u2019\u00e9l\u00e8ve de relier la notion nouvelle \u00e0 ce qu\u2019il conna\u00eet d\u00e9j\u00e0.'},
+      {t:'M\u00e9tacognition / Auto-\u00e9valuation',i:'\uD83E\uDEDE',cc:'cch',d:'La capacit\u00e9 \u00e0 \u00e9valuer pr\u00e9cis\u00e9ment sa propre ma\u00eetrise est un pr\u00e9dicteur fort de la r\u00e9ussite (Flavell, 1979 ; Hattie, 2009).',ex:'Entra\u00eener les \u00e9l\u00e8ves \u00e0 classer leurs notions en "Ma\u00eetris\u00e9 / En cours / \u00c0 retravailler".'},
+      {t:'Interleaving',i:'\uD83D\uDD00',cc:'ccm',d:'M\u00e9langer les types de probl\u00e8mes lors de la r\u00e9vision plut\u00f4t que bloquer par cat\u00e9gorie (Kornell & Bjork, 2008).',ex:'M\u00e9langer vocabulaire, grammaire et compr\u00e9hension dans une m\u00eame s\u00e9ance de r\u00e9vision.'}
+    ];
+    c.innerHTML=strats.map(function(s){return '<div class="strc"><div class="strh"><span style="font-size:1.3rem">'+s.i+'</span><div><div class="strt">'+esc(s.t)+'</div><span class="ccb '+s.cc+'" style="margin-top:3px"><span class="ccd"></span>'+({ccl:'Robustesse \u00e9lev\u00e9e',ccm:'Robustesse mod\u00e9r\u00e9e',cch:'Exige accompagnement'}[s.cc])+'</span></div></div><div class="strd">'+esc(s.d)+'</div><div class="stre"><strong>Application p\u00e9dagogique</strong>'+esc(s.ex)+'</div></div>';}).join('');
+  }
+  else if(tab==='l2'){
+    var refs=[
+      {a:'Stephen Krashen',c:'Hypoth\u00e8se i+1 (Input compr\u00e9hensible)',d:'L\u2019acquisition se produit quand l\u2019apprenant est expos\u00e9 \u00e0 un input l\u00e9g\u00e8rement au-dessus de son niveau actuel. Un input trop difficile ou trop facile n\u2019est pas acquisitionnel.',ap:'Calibrer les documents authentiques au niveau r\u00e9el des \u00e9l\u00e8ves. Pr\u00e9f\u00e9rer des textes A2+ pour des \u00e9l\u00e8ves A2.'},
+      {a:'Stephen Krashen',c:'Filtre affectif',d:'L\u2019anxi\u00e9t\u00e9, le manque de confiance ou la d\u00e9motivation bloquent l\u2019acquisition m\u00eame si l\u2019input est compr\u00e9hensible. Un environnement bienveillant est une condition sine qua non.',ap:'Valoriser les prises de parole imparfaites, \u00e9viter la correction publique syst\u00e9matique.'},
+      {a:'Paul Nation',c:'Vocabulaire de haute fr\u00e9quence',d:'Les 2000 mots les plus fr\u00e9quents couvrent environ 80% des textes courants. Nation pr\u00e9conise de ma\u00eetriser ce noyau avant d\u2019\u00e9largir.',ap:'Utiliser des listes de fr\u00e9quence (GSL, AWL). Prioriser les notions de haute fr\u00e9quence dans les r\u00e9visions.'},
+      {a:'Paul Nation',c:'Rencontres r\u00e9p\u00e9t\u00e9es (7\u201310\u00d7)',d:'Un mot n\u2019est vraiment acquis qu\u2019apr\u00e8s 7 \u00e0 10 rencontres dans des contextes vari\u00e9s. Une seule exposition ne suffit pas.',ap:'Planifier des r\u00e9activations r\u00e9guli\u00e8res du m\u00eame vocabulaire dans des activit\u00e9s diff\u00e9rentes.'},
+      {a:'Norbert Schmitt',c:'Connaissance partielle vs totale',d:'Schmitt distingue 9 dimensions de la connaissance d\u2019un mot (forme, sens, usage, collocations\u2026). Savoir traduire un mot \u2260 le ma\u00eetriser.',ap:'Ne pas se limiter \u00e0 la traduction. Travailler aussi la prononciation, les collocations, le registre.'},
+      {a:'Merrill Swain',c:'Output hypothesis',d:'La production (orale ou \u00e9crite) est un moteur de l\u2019apprentissage \u2014 pas seulement un r\u00e9sultat. Produire force \u00e0 remarquer les lacunes.',ap:'Int\u00e9grer des t\u00e2ches de production r\u00e9guli\u00e8res, m\u00eame courtes. La production guide la conscience linguistique.'}
+    ];
+    c.innerHTML=refs.map(function(r){return '<div class="rcard"><div class="rauth">'+esc(r.a)+'</div><div class="rcpt">'+esc(r.c)+'</div><div class="rdsc">'+esc(r.d)+'</div><div class="rapp"><strong>Application en classe</strong>'+esc(r.ap)+'</div></div>';}).join('');
+  }
+  else if(tab==='comp'){
+    var comps=[
+      {comp:'CO \u2014 Compr\u00e9hension de l\u2019oral',icon:'\uD83C\uDFA7',cs:[
+        {t:'Pr\u00e9-\u00e9coute obligatoire',d:'Anticiper le contenu r\u00e9duit la charge cognitive. Mobiliser les connaissances pr\u00e9alables avant chaque \u00e9coute (brainstorming, hypoth\u00e8ses sur le titre/image).'},
+        {t:'\u00c9coute segment\u00e9e',d:'Plusieurs \u00e9coutes cibl\u00e9es valent mieux qu\u2019une \u00e9coute exhaustive. 1re : sens global. 2e : \u00e9l\u00e9ments pr\u00e9cis. 3e si besoin : v\u00e9rification.'},
+        {t:'Strat\u00e9gie de compensation',d:'Former les \u00e9l\u00e8ves \u00e0 inf\u00e9rer le sens des mots inconnus gr\u00e2ce au contexte, au ton, aux \u00e9l\u00e9ments para-verbaux.'}
+      ]},
+      {comp:'CE \u2014 Compr\u00e9hension de l\u2019\u00e9crit',icon:'\uD83D\uDCD6',cs:[
+        {t:'Lecture par \u00e9tapes',d:'Titre \u2192 paratexte \u2192 structure \u2192 lecture globale \u2192 lecture d\u00e9taill\u00e9e. Ne pas commencer par une lecture lin\u00e9aire exhaustive.'},
+        {t:'Activation des connaissances',d:'Avant de lire, activer ce que les \u00e9l\u00e8ves savent d\u00e9j\u00e0 sur le sujet. Facilite la construction du sens et r\u00e9duit la charge cognitive.'},
+        {t:'Inf\u00e9rence et tol\u00e9rance \u00e0 l\u2019ambigu\u00ebt\u00e9',d:'Former les \u00e9l\u00e8ves \u00e0 tol\u00e9rer l\u2019incompr\u00e9hension partielle et \u00e0 construire une compr\u00e9hension globale malgr\u00e9 les lacunes lexicales.'}
+      ]},
+      {comp:'PE \u2014 Production \u00e9crite',icon:'\u270D\uFE0F',cs:[
+        {t:'\u00c9tayage progressif',d:'R\u00e9duire progressivement les aides (cadre, mots-cl\u00e9s, connecteurs fournis) \u00e0 mesure que l\u2019\u00e9l\u00e8ve gagne en autonomie.'},
+        {t:'Brouillon obligatoire',d:'Planification \u2192 r\u00e9daction \u2192 r\u00e9vision. Former les \u00e9l\u00e8ves \u00e0 ces trois phases distinctes, m\u00eame pour des productions courtes.'},
+        {t:'Feedback diff\u00e9r\u00e9 et cibl\u00e9',d:'Corriger 2\u20133 points cibl\u00e9s plut\u00f4t que tout. Un feedback trop dense n\u2019est pas trait\u00e9. Prioriser ce qui a \u00e9t\u00e9 enseign\u00e9 r\u00e9cemment.'}
+      ]},
+      {comp:'PO \u2014 Production orale',icon:'\uD83D\uDDE3',cs:[
+        {t:'Temps de pr\u00e9paration syst\u00e9matique',d:'Un temps de pr\u00e9paration m\u00eame court (2 min) augmente significativement la qualit\u00e9 de la production. Ne pas demander une r\u00e9ponse imm\u00e9diate.'},
+        {t:'Interaction avant monologue',d:'L\u2019interaction (dialogues, \u00e9changes courts) est plus naturelle et moins anxiog\u00e8ne que le monologue. La pratiquer d\u2019abord.'},
+        {t:'Correction indirecte (recasting)',d:'Reformuler la production de l\u2019\u00e9l\u00e8ve de fa\u00e7on correcte plut\u00f4t que corriger explicitement. Moins intrusif, plus naturel.'}
+      ]}
+    ];
+    c.innerHTML=comps.map(function(comp){return '<div class="strc" style="margin-bottom:16px"><div class="strh"><span style="font-size:1.3rem">'+comp.icon+'</span><div class="strt">'+esc(comp.comp)+'</div></div>'+comp.cs.map(function(cs){return '<div style="margin-bottom:10px"><div style="font-family:Lexend,sans-serif;font-size:.82rem;font-weight:700;color:var(--la);margin-bottom:3px">'+esc(cs.t)+'</div><div style="font-size:.8rem;color:var(--t2)">'+esc(cs.d)+'</div></div>';}).join('<hr style="border:none;border-top:1px solid var(--pa2);margin:10px 0">')+'</div>';}).join('');
+  }
+  else if(tab==='grl'){
+    var obs=[['R\u00e9p\u00e9tition espac\u00e9e','L\u2019\u00e9l\u00e8ve revoit ses notions \u00e0 intervalles r\u00e9guliers'],['Test effect','L\u2019\u00e9l\u00e8ve se teste (quiz, flashcards) plut\u00f4t que de relire'],['Charge cognitive','L\u2019\u00e9l\u00e8ve travaille sur peu d\u2019items \u00e0 la fois et fait des pauses'],['M\u00e9tacognition','L\u2019\u00e9l\u00e8ve identifie ce qu\u2019il sait et ce qu\u2019il ne sait pas encore'],['Strat\u00e9gies CO','L\u2019\u00e9l\u00e8ve anticipe et utilise le contexte \u00e0 l\u2019\u00e9coute'],['Strat\u00e9gies CE','L\u2019\u00e9l\u00e8ve lit par \u00e9tapes (global puis d\u00e9tail)'],['Strat\u00e9gies PE','L\u2019\u00e9l\u00e8ve planifie avant de r\u00e9diger'],['Strat\u00e9gies PO','L\u2019\u00e9l\u00e8ve pr\u00e9pare avant de prendre la parole'],['Production active','L\u2019\u00e9l\u00e8ve produit (\u00e9crit ou oral) r\u00e9guli\u00e8rement']];
+    c.innerHTML='<div class="cap"><h4>\uD83D\uDC41 Grille d\u2019observation</h4><p>Utilisez cette grille pour observer les strat\u00e9gies effectives de vos \u00e9l\u00e8ves.</p></div><div style="overflow-x:auto"><table class="gtbl"><thead><tr><th>Strat\u00e9gie</th><th>Indicateur observable</th><th>Jamais</th><th>Parfois</th><th>Souvent</th></tr></thead><tbody>'+obs.map(function(r,i){return '<tr><td><strong>'+esc(r[0])+'</strong></td><td>'+esc(r[1])+'</td><td style="text-align:center"><input type="radio" name="g'+i+'"></td><td style="text-align:center"><input type="radio" name="g'+i+'"></td><td style="text-align:center"><input type="radio" name="g'+i+'"></td></tr>';}).join('')+'</tbody></table></div>';
+  }
+  else if(tab==='act'){
+    var acts=[
+      {t:'Retrieval practice \u2014 5 min en d\u00e9but de cours',i:'\u26A1',cc:'ccl',d:'3 questions sur la notion de la s\u00e9ance pr\u00e9c\u00e9dente, sans notes. R\u00e9ponse individuelle \u00e9crite, puis correction collective.',ap:'Peut se faire \u00e0 l\u2019oral ou \u00e0 l\u2019\u00e9crit. Varier le format pour \u00e9viter l\u2019habituation.'},
+      {t:'Exit ticket',i:'\uD83C\uDFAB',cc:'ccl',d:'En fin de s\u00e9ance, chaque \u00e9l\u00e8ve \u00e9crit 1 chose apprise, 1 question encore ouverte. Feedback imm\u00e9diat pour l\u2019enseignant.',ap:'Utilisable en 3 min. Anonymiser si les \u00e9l\u00e8ves sont intim id\u00e9s.'},
+      {t:'Input flooding',i:'\uD83C\uDF0A',cc:'ccm',d:'Saturer un texte avec une structure ou un item lexical cible. L\u2019\u00e9l\u00e8ve y est expos\u00e9 de nombreuses fois sans m\u00e9talangage explicite.',ap:'\u00c9crire un texte o\u00f9 la structure "used to" appara\u00eet 8\u201310 fois. La structure s\u2019acquiert implicitement.'},
+      {t:'Dictogloss',i:'\uD83C\uDF99',cc:'ccm',d:'L\u2019enseignant lit un texte court 2 fois. Les \u00e9l\u00e8ves prennent des notes. Puis reconstruisent le texte en groupe.',ap:'Choisir un texte riche en structures cibles. La reconstruction favorise la n\u00e9gociation de sens.'},
+      {t:'Think-Pair-Share',i:'\uD83D\uDC65',cc:'ccl',d:'Temps de r\u00e9flexion individuelle (1 min), partage avec un camarade, puis partage en classe. R\u00e9duit l\u2019anxi\u00e9t\u00e9.',ap:'Id\u00e9al avant une prise de parole ou une question ouverte. Le temps individuel est crucial.'},
+      {t:'Shadowing',i:'\uD83D\uDD0A',cc:'ccm',d:'L\u2019\u00e9l\u00e8ve \u00e9coute un locuteur natif et r\u00e9p\u00e8te simultan\u00e9ment ou avec un l\u00e9ger d\u00e9calage. Tr\u00e8s efficace pour la prosodie.',ap:'Commencer par 30 secondes d\u2019un document audio simple. Progresser en longueur.'},
+      {t:'4/3/2',i:'\u23F1',cc:'cch',d:'L\u2019\u00e9l\u00e8ve parle 4 min sur un sujet, puis recommence en 3 min, puis en 2. La r\u00e9p\u00e9tition dans le temps contraint am\u00e9liore la fluidit\u00e9.',ap:'Chaque r\u00e9p\u00e9tition force l\u2019\u00e9l\u00e8ve \u00e0 aller \u00e0 l\u2019essentiel. Feedback sur la fluidit\u00e9, pas la correction.'}
+    ];
+    c.innerHTML=acts.map(function(a){return '<div class="strc"><div class="strh"><span style="font-size:1.3rem">'+a.i+'</span><div><div class="strt">'+esc(a.t)+'</div><span class="ccb '+a.cc+'" style="margin-top:3px"><span class="ccd"></span>'+({ccl:'Facile \u00e0 mettre en place',ccm:'Pr\u00e9paration mod\u00e9r\u00e9e',cch:'Exige de la pratique'}[a.cc])+'</span></div></div><div class="strd">'+esc(a.d)+'</div><div class="stre"><strong>Mise en oeuvre</strong>'+esc(a.ap)+'</div></div>';}).join('');
+  }
+  else if(tab==='ref'){
+    c.innerHTML='<div class="rcard"><div class="rauth">Andr\u00e9 Tricot</div><div class="rcpt">Charge cognitive & apprentissage</div><div class="rdsc">Tricot, A. (2017). <em>L\u2019innovation p\u00e9dagogique</em>. Retz. \u2014 Tricot, A. & Sweller, J. (2014). Domain-specific knowledge. <em>Educational Psychology Review</em>.</div></div><div class="rcard"><div class="rauth">John Hattie</div><div class="rcpt">Visible Learning</div><div class="rdsc">Hattie, J. (2009). <em>Visible Learning</em>. Routledge. M\u00e9ta-analyse de 800+ m\u00e9ta-analyses. Strat\u00e9gies les plus efficaces : feedback, r\u00e9cup\u00e9ration active, enseignement r\u00e9ciproque.</div></div><div class="rcard"><div class="rauth">Roediger & Karpicke</div><div class="rcpt">Test-Enhanced Learning (2006)</div><div class="rdsc">Les tests de r\u00e9cup\u00e9ration am\u00e9liorent davantage la r\u00e9tention que les sessions de re-lecture. <em>Psychological Science, 17</em>(3), 249\u2013255.</div></div><div class="rcard"><div class="rauth">\u00c9duscol</div><div class="rcpt">Neurosciences & neuromythes</div><div class="rdsc">Les recommandations efficaces viennent de la psychologie cognitive exp\u00e9rimentale. \u00c9viter : styles d\u2019apprentissage, cerveau gauche/droit, 10% du cerveau. \u00c9duscol (2020).</div></div>';
+  }
+}
+/* UTILS */
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function esc2(s){return String(s).replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'&quot;');}
+function shuf(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}return a;}
+function ds(d){return d.toISOString().slice(0,10);}
+function addD(d,n){var r=new Date(d);r.setDate(r.getDate()+n);return r;}
+function getIv(s){return[1,3,7,14,30][Math.min(s-1,4)];}
+function dp(n){return fmtD(ds(addD(new Date(),n)));}
+function fmtD(s){var p=s.split('-');var mo=['jan','f\u00e9v','mar','avr','mai','jun','jul','ao\u00fb','sep','oct','nov','d\u00e9c'];return p[2]+' '+mo[parseInt(p[1])-1];}
+function openOv(id){document.getElementById(id).classList.add('op');}
+function closeOv(id){document.getElementById(id).classList.remove('op');}
+document.addEventListener('DOMContentLoaded',function(){
+  try{load();}catch(e){}
+  try{if(S&&S.name&&S.role)initApp();}catch(e){}
+});
+// Fallback si DOMContentLoaded déjà passé
+if(document.readyState==='complete'||document.readyState==='interactive'){
+  try{load();}catch(e){}
+  try{if(S&&S.name&&S.role)initApp();}catch(e){}
+}
+</script>
+</body>
+</html>
